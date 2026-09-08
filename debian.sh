@@ -8,8 +8,27 @@ titleBar() {
 EOF
 }
 
+add_docker_repository() {
+    sudo apt update
+    sudo apt install ca-certificates curl
+
+    # 1. Ensure keyrings directory exists
+    sudo install -m 0755 -d /etc/apt/keyrings
+
+    # 2. Download the official Docker GPG key
+    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+    # 3. Read the OS codename into a variable
+    . /etc/os-release
+
+    # 4. Write the repository list file using the evaluated variable
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu ${UBUNTU_CODENAME:-$VERSION_CODENAME} stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+}
+
 update_system() {
     echo "Updating system packages..."
+    add_docker_repository()
     sudo apt update && sudo apt upgrade -y
 }
 
@@ -41,13 +60,72 @@ install_desktop_stack() {
 
     # create work directory
     cd ~
+    if [ -d "install-hyprland" ]; then
+        rm -rf install-hyprland
+    fi
     mkdir install-hyprland
     cd install-hyprland
+
+    # install hyprwayland-scanner
+    git clone https://github.com/hyprwm/hyprwayland-scanner.git
+    cd hyprwayland-scanner
+    cmake -DCMAKE_INSTALL_PREFIX=/usr -B build
+    cmake --build build -j$(nproc)
+    sudo cmake --install build
+    cd ..
+
+    # install aquamarine
+    git clone https://github.com/hyprwm/aquamarine.git
+    cd aquamarine
+    cmake -DCMAKE_INSTALL_PREFIX=/usr/local -B build
+    cmake --build build -j$(nproc)
+    sudo cmake --install build
+    cd ..
+
+    # install hyprutils
+    git clone https://github.com/hyprwm/hyprutils.git
+    cd hyprutils
+    cmake -DCMAKE_INSTALL_PREFIX=/usr/local -B build
+    cmake --build build -j$(nproc)
+    sudo cmake --install build
+    cd ..
+
+    # install wayland-protocols
+    git clone https://gitlab.freedesktop.org/wayland/wayland-protocols.git
+    cd wayland-protocols
+    meson setup build --prefix=/usr
+    ninja -C build
+    sudo ninja -C build install
+    cd ..
 
     # install hyprland
     git clone --recursive https://github.com/hyprwm/Hyprland
     cd Hyprland
     make all && sudo make install
+    cd ..
+
+    # install hyprwire
+    git clone https://github.com/hyprwm/hyprwire.git
+    cd hyprwire
+    cmake -DCMAKE_INSTALL_PREFIX=/usr/local -B build
+    cmake --build build -j$(nproc)
+    sudo cmake --install build
+    cd ..
+
+    # install hyprgraphics
+    git clone https://github.com/hyprwm/hyprgraphics.git
+    cd hyprgraphics
+    cmake -DCMAKE_INSTALL_PREFIX=/usr/local -B build
+    cmake --build build -j$(nproc)
+    sudo cmake --install build
+    cd ..
+
+    # install hyprtoolkit
+    git clone https://github.com/hyprwm/hyprtoolkit.git
+    cd hyprtoolkit
+    cmake -DCMAKE_INSTALL_PREFIX=/usr/local -B build
+    cmake --build build -j$(nproc)
+    sudo cmake --install build
     cd ..
 
     # install hyprpaper
