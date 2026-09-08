@@ -2,9 +2,9 @@
 
 titleBar() {
     cat << "EOF"
-|=============================================================|
+|===============================================================|
 |---  Setting up the system for a Debian/Ubuntu environment  ---|
-|=============================================================|
+|===============================================================|
 EOF
 }
 
@@ -74,17 +74,17 @@ install_desktop_stack() {
     sudo cmake --install build
     cd ..
 
-    # install aquamarine
-    git clone https://github.com/hyprwm/aquamarine.git
-    cd aquamarine
+    # install hyprutils
+    git clone https://github.com/hyprwm/hyprutils.git
+    cd hyprutils
     cmake -DCMAKE_INSTALL_PREFIX=/usr/local -B build
     cmake --build build -j$(nproc)
     sudo cmake --install build
     cd ..
 
-    # install hyprutils
-    git clone https://github.com/hyprwm/hyprutils.git
-    cd hyprutils
+    # install aquamarine
+    git clone https://github.com/hyprwm/aquamarine.git
+    cd aquamarine
     cmake -DCMAKE_INSTALL_PREFIX=/usr/local -B build
     cmake --build build -j$(nproc)
     sudo cmake --install build
