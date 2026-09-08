@@ -28,7 +28,7 @@ add_docker_repository() {
 
 update_system() {
     echo "Updating system packages..."
-    add_docker_repository()
+    add_docker_repository
     sudo apt update && sudo apt upgrade -y
 }
 
