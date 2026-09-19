@@ -29,7 +29,7 @@ add_docker_repository() {
 update_system() {
     echo "Updating system packages..."
     add_docker_repository
-    sudo apt update && sudo apt upgrade -y
+    sudo apt update && sudo apt upgrade -y 
 }
 
 is_installed() {
@@ -65,6 +65,14 @@ install_desktop_stack() {
     fi
     mkdir install-hyprland
     cd install-hyprland
+
+    # install wayland
+    git clone https://gitlab.freedesktop.org/wayland/wayland.git
+    cd wayland
+    meson setup build --prefix=/usr/local -Ddocumentation=false
+    ninja -C build
+    sudo ninja -C build install
+    cd ..
 
     # install hyprwayland-scanner
     git clone https://github.com/hyprwm/hyprwayland-scanner.git
