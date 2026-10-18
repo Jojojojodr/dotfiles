@@ -18,7 +18,7 @@ window {
     location:                    center;
     anchor:                      center;
     fullscreen:                  false;
-    width:                       800px;
+    width:                       400px;
     x-offset:                    0px;
     y-offset:                    0px;
 
@@ -40,7 +40,7 @@ mainbox {
     margin:                      0px;
     padding:                     30px;
     background-color:            transparent;
-    children:                    [ "inputbar", "message", "listview", "mode-switcher" ];
+    children:                    [ "inputbar", "message", "listview"];
 }
 
 /*****----- Inputbar -----*****/
@@ -83,7 +83,7 @@ entry {
 /*****----- Listview -----*****/
 listview {
     enabled:                     true;
-    columns:                     2;
+    columns:                     1;
     lines:                       7;
     cycle:                       true;
     dynamic:                     true;
