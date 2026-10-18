@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
-#
-# Author: Jordy de Ron
-# Date: 12 aug 2026
-# License: MIT
-#
+
 # This script sets up a Linux environment with essential packages, services, and configurations.
 
 set_zsh_as_default() { 
@@ -105,11 +101,11 @@ setup_symlinks() {
     fi
 
     rm -f ~/.gitconfig  # Remove existing .gitconfig to avoid conflicts
-    rm -rf ~/.config/nvim  # Remove existing nvim config to avoid conflicts
-    rm -rf ~/.config/tmux # Remove existing tmux config to avoid conflicts
     stow --adopt git
-    stow --adopt nvim
-    stow --adopt tmux
+    for dir in nvim tmux superfile; do
+        rm -rf ~/.config/$dir  # Remove existing config to avoid conflicts
+        stow --adopt $dir
+    done
 
     if [[ "$DEV_ONLY" == true ]]; then
         echo "Development-only mode enabled. Skipping additional dotfiles."
@@ -135,8 +131,8 @@ main() {
     clear
     titleBar
 
-    update_system "$DEV_ONLY"
-    install_system
+    update_system
+    install_system "$DEV_ONLY"
     install_superfile
     setup_zsh
     setup_symlinks
@@ -152,6 +148,8 @@ if command -v pacman &> /dev/null; then
     source ./arch.sh
 elif command -v apt &> /dev/null; then
     source ./debian.sh
+elif command -v dnf &> /dev/null; then
+    source ./fedora.sh
 else
     echo "Your system is not supported. This script is intended for Debian/Ubuntu, Arch Linux and their derivatives."
     exit 1
