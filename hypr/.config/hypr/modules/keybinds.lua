@@ -4,8 +4,11 @@
 
 -- Set programs that you use
 local terminal = "ghostty"
-local fileManager = "dolphin"
-local menu = "rofi -show drun"
+local fileManager = "ghostty -e spf"
+local appMenu = "rofi -show drun"
+local runMenu = "rofi -show run"
+local windowMenu = "rofi -show window"
+local browser = "brave"
 
 ---------------------
 ---- KEYBINDINGS ----
@@ -17,8 +20,11 @@ hl.bind(mainMod .. " + RETURN", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + Q", hl.dsp.window.close())
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
-hl.bind(mainMod .. " + P", hl.dsp.exec_cmd(menu))
 hl.bind(mainMod .. " + T", hl.dsp.layout("togglesplit")) -- dwindle only
+hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(browser))
+hl.bind(mainMod .. " + TAB", hl.dsp.exec_cmd(windowMenu))
+hl.bind(mainMod .. " + SPACE", hl.dsp.exec_cmd(appMenu))
+hl.bind(mainMod .. " + SHIFT + SPACE", hl.dsp.exec_cmd(runMenu))
 hl.bind(mainMod .. " + SHIFT + P", hl.dsp.window.pseudo())
 hl.bind(mainMod .. " + SHIFT + M", hl.dsp.exit())
 
@@ -37,7 +43,7 @@ hl.bind(mainMod .. " + J", hl.dsp.focus({ direction = "down" }))
 -- Workspace switching and moving windows to workspaces with mainMod + number keys
 for i = 1, 10 do
 	local key = i % 10
-	hl.bind(mainMod .. " + " .. key, function ()
+	hl.bind(mainMod .. " + " .. key, function()
 		local newWorkspace = tostring(i)
 		local workspace = hl.get_active_workspace()
 		if workspace.monitor.name == "HDMI-A-1" then
@@ -45,9 +51,9 @@ for i = 1, 10 do
 		elseif workspace.monitor.name == "HDMI-A-2" then
 			newWorkspace = tostring(((i - 1) % 10) + 11)
 		end
-		hl.dispatch(hl.dsp.focus({ workspace = newWorkspace }))	
+		hl.dispatch(hl.dsp.focus({ workspace = newWorkspace }))
 	end)
-	hl.bind(mainMod .. " + SHIFT + " .. key, function ()
+	hl.bind(mainMod .. " + SHIFT + " .. key, function()
 		local newWorkspace = tostring(i)
 		local workspace = hl.get_active_workspace()
 		if workspace.monitor.name == "HDMI-A-1" then
@@ -95,4 +101,3 @@ hl.bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl next"), { locked = true })
 hl.bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
 hl.bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
 hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true })
-
