@@ -14,6 +14,30 @@ add_docker_repository() {
     sudo curl -fsSL https://download.docker.com/linux/fedora/docker-ce.repo -o /etc/yum.repos.d/docker-ce.repo
 }
 
+# Enable a COPR repo, falling back to another chroot when the project
+# has no build for the running Fedora release (e.g. only rawhide)
+enable_copr() {
+    local project="$1"
+    local release arch
+    release="$(rpm -E %fedora)"
+    arch="$(uname -m)"
+
+    local chroots=("fedora-$release-$arch" "fedora-rawhide-$arch")
+    for ((v = release - 1; v >= release - 3; v--)); do
+        chroots+=("fedora-$v-$arch")
+    done
+
+    for chroot in "${chroots[@]}"; do
+        if sudo dnf -y copr enable "$project" "$chroot" &> /dev/null; then
+            echo "Enabled COPR $project ($chroot)"
+            return 0
+        fi
+    done
+
+    echo "Warning: could not enable COPR $project for any known chroot, skipping." >&2
+    return 0
+}
+
 add_third_party_repositories() {
     echo "Adding third-party and COPR repositories..."
 
@@ -25,10 +49,10 @@ add_third_party_repositories() {
     fi
 
     # Hyprland ecosystem (provides hyprshot) via the solopasha COPR
-    sudo dnf -y copr enable solopasha/hyprland
+    enable_copr solopasha/hyprland
 
     # Ghostty via the upstream-recommended COPR
-    sudo dnf -y copr enable scottames/ghostty
+    enable_copr scottames/ghostty
 
     # Brave Browser (official vendor repository)
     sudo curl -fsSL https://brave-browser-rpm-release.s3.brave.com/brave-browser.repo -o /etc/yum.repos.d/brave-browser.repo
