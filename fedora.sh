@@ -131,9 +131,15 @@ build_wayle() {
 
     # Share one target dir so common dependencies are only compiled once
     export CARGO_TARGET_DIR="$build_dir/target"
+
+    # wayle's release profile sets lto = true and codegen-units = 1, which
+    # makes rustc hold an entire crate (wayle-shell is huge) in memory at
+    # once. Thin LTO with more codegen units uses far less RAM.
+    export CARGO_PROFILE_RELEASE_LTO=thin
+    export CARGO_PROFILE_RELEASE_CODEGEN_UNITS=16
     cargo install -j "$jobs" --path "$build_dir/wayle/wayle" --root "$HOME/.local"
     cargo install -j "$jobs" --path "$build_dir/wayle/crates/wayle-settings" --root "$HOME/.local"
-    unset CARGO_TARGET_DIR
+    unset CARGO_TARGET_DIR CARGO_PROFILE_RELEASE_LTO CARGO_PROFILE_RELEASE_CODEGEN_UNITS
 
     (cd "$build_dir/wayle" && "$HOME/.local/bin/wayle" icons setup)
 
