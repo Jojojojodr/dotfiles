@@ -48,8 +48,11 @@ add_third_party_repositories() {
         sudo dnf -y install dnf-plugins-core
     fi
 
-    # Hyprland ecosystem (provides hyprshot) via the solopasha COPR
-    enable_copr solopasha/hyprland
+    # Hyprland ecosystem (provides hyprshot) via the sdegler COPR.
+    # solopasha/hyprland only builds for rawhide now, whose packages need
+    # libraries that stable Fedora doesn't ship, so drop it if present.
+    sudo dnf -y copr remove solopasha/hyprland &> /dev/null || true
+    enable_copr sdegler/hyprland
 
     # Ghostty via the upstream-recommended COPR
     enable_copr scottames/ghostty
