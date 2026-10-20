@@ -112,7 +112,7 @@ build_wayle() {
     echo "Building wayle from source (not packaged for Fedora)..."
     sudo dnf install -y git cmake pkgconf-pkg-config gtk4-devel gtk4-layer-shell-devel \
         gtksourceview5-devel pulseaudio-libs-devel fftw-devel pipewire-devel \
-        systemd-devel clang gcc
+        systemd-devel libxkbcommon-devel wayland-devel clang gcc
 
     # Build on disk instead of /tmp (tmpfs on Fedora, so it eats RAM)
     local build_dir="$HOME/.cache/wayle-build"
