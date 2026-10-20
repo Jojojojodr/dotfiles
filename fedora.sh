@@ -114,12 +114,26 @@ build_wayle() {
         gtksourceview5-devel pulseaudio-libs-devel fftw-devel pipewire-devel \
         systemd-devel clang gcc
 
-    local build_dir
-    build_dir="$(mktemp -d)"
-    git clone https://github.com/wayle-rs/wayle "$build_dir/wayle"
+    # Build on disk instead of /tmp (tmpfs on Fedora, so it eats RAM)
+    local build_dir="$HOME/.cache/wayle-build"
+    rm -rf "$build_dir"
+    mkdir -p "$build_dir"
+    git clone --depth 1 https://github.com/wayle-rs/wayle "$build_dir/wayle"
 
-    cargo install --path "$build_dir/wayle/wayle" --root "$HOME/.local"
-    cargo install --path "$build_dir/wayle/crates/wayle-settings" --root "$HOME/.local"
+    # The release profile uses LTO, which needs a lot of memory per rustc job;
+    # allow roughly one job per 2.5 GB of RAM so the OOM killer stays away
+    local mem_kb jobs
+    mem_kb="$(awk '/MemTotal/ {print $2}' /proc/meminfo)"
+    jobs=$((mem_kb / 2500000))
+    [ "$jobs" -lt 1 ] && jobs=1
+    [ "$jobs" -gt "$(nproc)" ] && jobs="$(nproc)"
+    echo "Compiling with $jobs parallel job(s)..."
+
+    # Share one target dir so common dependencies are only compiled once
+    export CARGO_TARGET_DIR="$build_dir/target"
+    cargo install -j "$jobs" --path "$build_dir/wayle/wayle" --root "$HOME/.local"
+    cargo install -j "$jobs" --path "$build_dir/wayle/crates/wayle-settings" --root "$HOME/.local"
+    unset CARGO_TARGET_DIR
 
     (cd "$build_dir/wayle" && "$HOME/.local/bin/wayle" icons setup)
 
